@@ -134,7 +134,7 @@ function display_block( $file )
 	if(in_array($file_ext, $ignore_ext_list)) { return; }
 	
 	echo "<div class=\"block\">";
-	echo "<a href=\"$file\" class=\"$file_ext\">";
+	echo "<a href=\"./$file\" class=\"$file_ext\">";
 	echo "	<div class=\"img $file_ext\">&nbsp;</div>";
 	echo "	<div class=\"name\">\n";
 	echo "		<div class=\"file\">" . basename($file) . "</div>\n";
