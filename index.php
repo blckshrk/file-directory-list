@@ -191,8 +191,7 @@ function format_size($file) {
 
 
 // SHOW THE MEDIA BLOCK
-function display_block( $file )
-{
+function display_block($file) {
 	global $ignore_file_list, $ignore_ext_list;
 
 	$file_ext = getFileExt($file);
@@ -206,15 +205,22 @@ function display_block( $file )
 		return;
 	}
 
-	echo "<div class=\"block\">";
-	echo "<a href=\"./$file\" class=\"$file_ext\">";
-	echo "	<div class=\"img $file_ext\">&nbsp;</div>";
-	echo "	<div class=\"name\">\n";
-	echo "		<div class=\"file\">" . basename($file) . "</div>\n";
-	echo "		<div class=\"date\">Size: " . format_size($file) . "<br />Last modified: " .  date("D. F jS, Y - H\hi", filemtime($file)) . "</div>\n";
-	echo "	</div>\n";
-	echo "</a>\n";
-	echo "</div>";
+	$file_name = basename($file);
+	$file_size = format_size($file);
+	$file_date = date("D. F jS, Y - H\hi", filemtime($file));
+
+	echo <<<EOT
+<div class="block">
+	<a href="./{$file}" class="{$file_ext}">
+		<div class="img {$file_ext}">&nbsp;</div>
+		<div class="name">
+			<div class="file"> {$file_name} </div>
+			<div class="date">Size: {$file_size} <br>
+			Last modified: {$file_date}</div>
+		</div>
+	</a>
+</div>
+EOT;
 }
 
 
