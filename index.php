@@ -69,27 +69,20 @@ if( !$title ) {
 		body {
 		    font-family: "Lato", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 		    font-weight: 400;
-		    font-size: 14px;
-		    line-height: 18px;
+		    font-size: 1.8em;
+		    line-height: 1em;
 		    padding: 0;
 		    margin: 0;
 		    background: #f5f5f5;
 		}
 		.wrap {
-		    max-width: 600px;
-		    margin: 20px auto;
+		    margin: 60px 80px;
 		    background: white;
-		    padding: 40px;
 		    box-shadow: 0 0 2px #ccc;
-		}
-		@media only screen and (max-width: 700px) {
-		    .wrap {
-		        padding: 15px;
-		    }
 		}
 		.title-icon {
 			max-width: 200px;
-			margin: auto;
+			margin: 20px auto 10px auto;
 			display: block;
 		}
 		h1 {
@@ -107,36 +100,30 @@ if( !$title ) {
 		    color: #206ba4;
 		    text-decoration: none;
 		}
-		.note {
-		    padding: 0 5px 25px 0;
-		    font-size: 80%;
-		    color: #666;
-		    line-height: 18px;
-		}
 		.block {
 		    clear: both;
-		    min-height: 50px;
+		    min-height: 70px;
 		    border-top: solid 1px #ECE9E9;
 		}
 		.block:first-child {
 		    border: none;
 		}
 		.block .img {
-		    width: 50px;
-		    height: 50px;
+		    width: 70px;
+		    height: 70px;
 		    display: block;
 		    float: left;
-		    margin-right: 10px;
+		    margin: 10px 20px 10px auto;
 		    background: transparent url(<?php echo $icon_url; ?>) no-repeat 0 0;
 		}
 		.block .date {
 		    margin-top: 4px;
-		    font-size: 70%;
+		    font-size: 0.7em;
 		    color: #666;
 		}
 		.block a {
 		    display: block;
-		    padding: 10px 15px;
+		    padding: 25px 35px;
 		    transition: all 0.35s;
 		}
 		.block a:hover {
@@ -144,10 +131,10 @@ if( !$title ) {
 		    background: #efefef;
 		}
 		.dir {
-		    background-position: -50px 0 !important;
+		    background-position: -70px 0 !important;
 		}
 		.apk {
-		    background-position: -100px 0 !important;
+		    background-position: -140px 0 !important;
 		}
 		.sub {
 		    margin-left: 20px;
@@ -155,6 +142,21 @@ if( !$title ) {
 		    display: none;
 		}
 
+		@media only screen and (min-width: 1024px) {
+			body {
+				font-size: 1.4em;
+			}
+
+		    .wrap {
+		        max-width: 800px;
+		        margin-left: auto;
+		        margin-right: auto;
+		    }
+
+		    .block .img {
+		    	margin: auto 20px auto auto;
+		    }
+		}
 	</style>
 </head>
 <body>
