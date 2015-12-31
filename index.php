@@ -52,8 +52,7 @@ if( !$title ) {
 	$title = cleanTitle(basename(dirname(__FILE__)));
 }
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title><?php echo $title; ?></title>
@@ -202,7 +201,7 @@ function display_block( $file )
 	echo "	<div class=\"img $file_ext\">&nbsp;</div>";
 	echo "	<div class=\"name\">\n";
 	echo "		<div class=\"file\">" . basename($file) . "</div>\n";
-	echo "		<div class=\"date\">Size: " . format_size($file) . "<br />Last modified: " .  date("D. F jS, Y - h:ia", filemtime($file)) . "</div>\n";
+	echo "		<div class=\"date\">Size: " . format_size($file) . "<br />Last modified: " .  date("D. F jS, Y - H\hi", filemtime($file)) . "</div>\n";
 	echo "	</div>\n";
 	echo "</a>\n";
 	echo "</div>";
