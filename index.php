@@ -28,27 +28,27 @@ SOFTWARE.
 
 *** OPTIONS ***/
 
-	// TITLE OF PAGE
-	$title = "Meetchr nightly builds";
+// TITLE OF PAGE
+$title = "Meetchr nightly builds";
 
-	// ADD SPECIFIC FILES YOU WANT TO IGNORE HERE
-	$ignore_file_list = array( ".htaccess", "Thumbs.db", ".DS_Store", "index.php" );
+// ADD SPECIFIC FILES YOU WANT TO IGNORE HERE
+$ignore_file_list = array( ".htaccess", "Thumbs.db", ".DS_Store", "index.php" );
 
-	// ADD SPECIFIC FILE EXTENSIONS YOU WANT TO IGNORE HERE, EXAMPLE: array('psd','jpg','jpeg')
-	$ignore_ext_list = array();
+// ADD SPECIFIC FILE EXTENSIONS YOU WANT TO IGNORE HERE, EXAMPLE: array('psd','jpg','jpeg')
+$ignore_ext_list = array();
 
-	// SORT BY
-	$sort_by = "name_desc"; // options: name_asc, name_desc, date_asc, date_desc
+// SORT BY
+$sort_by = "name_desc"; // options: name_asc, name_desc, date_asc, date_desc
 
-	// ICON URL
-	$icon_url = "https://dl.dropbox.com/s/3iiyccl0qo2hx6h/icons.png";
+// ICON URL
+$icon_url = "https://dl.dropbox.com/s/3iiyccl0qo2hx6h/icons.png";
 
-	// TOGGLE SUB FOLDERS, SET TO false IF YOU WANT OFF
-	$toggle_sub_folders = true;
+// TOGGLE SUB FOLDERS, SET TO false IF YOU WANT OFF
+$toggle_sub_folders = true;
 
 
 // SET TITLE BASED ON FOLDER NAME, IF NOT SET ABOVE
-if( !$title ) {
+if (!$title) {
 	$title = cleanTitle(basename(dirname(__FILE__)));
 }
 ?>
@@ -165,24 +165,28 @@ if( !$title ) {
 <?php
 
 // FUNCTIONS TO MAKE THE MAGIC HAPPEN, BEST TO LEAVE THESE ALONE
-function cleanTitle($title)
-{
-	return ucwords( str_replace( array("-", "_"), " ", $title) );
+function cleanTitle($title) {
+	return ucwords(str_replace(array("-", "_"), " ", $title));
 }
 
-function getFileExt($filename)
-{
-	return substr( strrchr( $filename,'.' ),1 );
+function getFileExt($filename) {
+	return substr(strrchr($filename, '.'), 1);
 }
 
-function format_size($file)
-{
+function format_size($file) {
 	$bytes = filesize($file);
-	if ($bytes < 1024) return $bytes.'b';
-	elseif ($bytes < 1048576) return round($bytes / 1024, 2).'kb';
-	elseif ($bytes < 1073741824) return round($bytes / 1048576, 2).'mb';
-	elseif ($bytes < 1099511627776) return round($bytes / 1073741824, 2).'gb';
-	else return round($bytes / 1099511627776, 2).'tb';
+
+	if ($bytes < 1024) {
+		return $bytes.'b';
+	} elseif ($bytes < 1048576) {
+		return round($bytes / 1024, 2).'kb';
+	} elseif ($bytes < 1073741824) {
+		return round($bytes / 1048576, 2).'mb';
+	} elseif ($bytes < 1099511627776) {
+		return round($bytes / 1073741824, 2).'gb';
+	} else {
+		return round($bytes / 1099511627776, 2).'tb';
+	}
 }
 
 
@@ -192,9 +196,15 @@ function display_block( $file )
 	global $ignore_file_list, $ignore_ext_list;
 
 	$file_ext = getFileExt($file);
-	if( !$file_ext AND is_dir($file)) { $file_ext = "dir"; }
-	if(in_array($file, $ignore_file_list)) { return; }
-	if(in_array($file_ext, $ignore_ext_list)) { return; }
+	if (!$file_ext && is_dir($file)) {
+		$file_ext = "dir";
+	}
+	if (in_array($file, $ignore_file_list)) {
+		return;
+	}
+	if (in_array($file_ext, $ignore_ext_list)) {
+		return;
+	}
 
 	echo "<div class=\"block\">";
 	echo "<a href=\"./$file\" class=\"$file_ext\">";
@@ -209,33 +219,36 @@ function display_block( $file )
 
 
 // RECURSIVE FUNCTION TO BUILD THE BLOCKS
-function build_blocks( $items, $folder )
-{
+function build_blocks($items, $folder) {
 	global $ignore_file_list, $ignore_ext_list, $sort_by, $toggle_sub_folders;
+
 	$objects = array();
 	$objects['directories'] = array();
 	$objects['files'] = array();
 
-	foreach($items as $c => $item)
-	{
-		if( $item == ".." OR $item == ".") continue;
+	foreach ($items as $c => $item) {
+		if ($item == ".." || $item == ".") {
+			continue;
+		}
 
 		// IGNORE FILE
-		if(in_array($item, $ignore_file_list)) { continue; }
+		if (in_array($item, $ignore_file_list)) {
+			continue;
+		}
 
-		if( $folder )
-		{
+		if ($folder) {
 			$item = "$folder/$item";
 		}
 
 		$file_ext = getFileExt($item);
 
 		// IGNORE EXT
-		if(in_array($file_ext, $ignore_ext_list)) { continue; }
+		if (in_array($file_ext, $ignore_ext_list)) {
+			continue;
+		}
 
 		// DIRECTORIES
-		if( is_dir($item) )
-		{
+		if (is_dir($item)) {
 			$objects['directories'][] = $item;
 			continue;
 		}
@@ -247,15 +260,12 @@ function build_blocks( $items, $folder )
 		$objects['files'][$file_time . "-" . $item] = $item;
 	}
 
-	foreach($objects['directories'] as $c => $file)
-	{
+	foreach ($objects['directories'] as $c => $file) {
 		display_block( $file );
 
-		if($toggle_sub_folders)
-		{
+		if ($toggle_sub_folders) {
 			$sub_items = (array) scandir( $file );
-			if( $sub_items )
-			{
+			if ($sub_items) {
 				echo "<div class='sub' data-folder=\"$file\">";
 				build_blocks( $sub_items, $file );
 				echo "</div>";
@@ -264,34 +274,46 @@ function build_blocks( $items, $folder )
 	}
 
 	// SORT BEFORE LOOP
-	if( $sort_by == "date_asc" ) { ksort($objects['files']); }
-	elseif( $sort_by == "date_desc" ) { krsort($objects['files']); }
-	elseif( $sort_by == "name_asc" ) { natsort($objects['files']); }
-	elseif( $sort_by == "name_desc" ) { arsort($objects['files']); }
+	if ($sort_by == "date_asc") {
+		ksort($objects['files']);
+	}
+	elseif ($sort_by == "date_desc") {
+		krsort($objects['files']);
+	}
+	elseif ($sort_by == "name_asc") {
+		natsort($objects['files']);
+	}
+	elseif ($sort_by == "name_desc") {
+		arsort($objects['files']);
+	}
 
-	foreach($objects['files'] as $t => $file)
-	{
+	foreach ($objects['files'] as $t => $file) {
 		$fileExt = getFileExt($file);
-		if(in_array($file, $ignore_file_list)) { continue; }
-		if(in_array($fileExt, $ignore_ext_list)) { continue; }
-		display_block( $file );
+
+		if (in_array($file, $ignore_file_list)) {
+			continue;
+		}
+
+		if (in_array($fileExt, $ignore_ext_list)) {
+			continue;
+		}
+
+		display_block($file);
 	}
 }
 
 // GET THE BLOCKS STARTED, FALSE TO INDICATE MAIN FOLDER
-$items = scandir( dirname(__FILE__) );
+$items = scandir(dirname(__FILE__));
 build_blocks( $items, false );
 ?>
 
-<?php if($toggle_sub_folders) { ?>
+<?php if ($toggle_sub_folders) { ?>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
 <script>
-	$(document).ready(function()
-	{
-		$("a.dir").click(function(e)
-		{
-		 	$('.sub[data-folder="' + $(this).attr('href') + '"]').slideToggle();
+	$(document).ready(function() {
+		$('a.dir').on('click', function (e) {
 			e.preventDefault();
+		 	$('.sub[data-folder="' + $(this).attr('href') + '"]').slideToggle();
 		});
 	});
 </script>
