@@ -45,6 +45,145 @@ $toggle_sub_folders = true;
 if (!$title) {
     $title = cleanTitle(basename(dirname(__FILE__)));
 }
+
+// FUNCTIONS TO MAKE THE MAGIC HAPPEN, BEST TO LEAVE THESE ALONE
+function cleanTitle($title) {
+    return ucwords(str_replace(array("-", "_"), " ", $title));
+}
+
+function getFileExt($filename) {
+    return substr(strrchr($filename, '.'), 1);
+}
+
+function format_size($file) {
+    $bytes = filesize($file);
+
+    if ($bytes < 1024) {
+        return $bytes.'b';
+    } elseif ($bytes < 1048576) {
+        return round($bytes / 1024, 2).'kb';
+    } elseif ($bytes < 1073741824) {
+        return round($bytes / 1048576, 2).'mb';
+    } elseif ($bytes < 1099511627776) {
+        return round($bytes / 1073741824, 2).'gb';
+    } else {
+        return round($bytes / 1099511627776, 2).'tb';
+    }
+}
+
+
+// SHOW THE MEDIA BLOCK
+function display_block($file) {
+    global $ignore_file_list, $ignore_ext_list;
+
+    $file_ext = getFileExt($file);
+    if (!$file_ext && is_dir($file)) {
+        $file_ext = "dir";
+    }
+
+    $file_name = basename($file);
+    $file_size = format_size($file);
+    $file_date = date("D. F jS, Y - H\hi", filemtime($file));
+
+    echo <<<EOT
+<div class="block">
+    <a href="./{$file}" class="{$file_ext}">
+        <div class="img {$file_ext}">&nbsp;</div>
+        <div class="name">
+            <div class="file">{$file_name}</div>
+            <div class="date">Size: {$file_size}<br>Last modified: {$file_date}</div>
+        </div>
+    </a>
+</div>
+EOT;
+}
+
+// RECURSIVE FUNCTION TO BUILD THE BLOCKS
+function build_blocks($items, $folder) {
+    global $ignore_file_list, $ignore_ext_list, $sort_by, $toggle_sub_folders;
+
+    $objects = array();
+    $objects['directories'] = array();
+    $objects['files'] = array();
+
+    foreach ($items as $c => $item) {
+        if ($item == ".." || $item == ".") {
+            continue;
+        }
+
+        if ($folder) {
+            $item = "$folder/$item";
+        }
+
+        $file_ext = getFileExt($item);
+
+        // IGNORE EXT
+        if ($file_ext != "apk") {
+            continue;
+        }
+
+        // DIRECTORIES
+        if (is_dir($item)) {
+            $objects['directories'][] = $item;
+            continue;
+        }
+
+        // FILE DATE
+        $file_time = date("U", filemtime($item));
+
+        // FILES
+        $objects['files'][$file_time . "-" . $item] = $item;
+    }
+
+    // SORT BEFORE LOOP
+    if ($sort_by == "date_asc") {
+        ksort($objects['files']);
+    }
+    elseif ($sort_by == "date_desc") {
+        krsort($objects['files']);
+    }
+    elseif ($sort_by == "name_asc") {
+        natsort($objects['files']);
+    }
+    elseif ($sort_by == "name_desc") {
+        arsort($objects['files']);
+    }
+
+    // LASTEST APK
+    echo "<h2>Lastest</h2>";
+    echo "<div class=\"wrap\">";
+
+    foreach (array_slice($objects['files'], 0, 2) as $t => $file) {
+        display_block($file);
+    }
+
+    echo "</div>";
+
+    // Others
+    echo "<h2>Oldest</h2>";
+    echo "<div class=\"wrap\">";
+
+    // Directories
+    // foreach ($objects['directories'] as $c => $file) {
+    //     display_block($file);
+
+    //     if ($toggle_sub_folders) {
+    //         $sub_items = (array) scandir( $file );
+    //         if ($sub_items) {
+    //             echo "<div class=\"sub\" data-folder=\"$file\">";
+    //             build_blocks( $sub_items, $file );
+    //             echo "</div>";
+    //         }
+    //     }
+    // }
+
+    // Files
+    foreach (array_slice($objects['files'], 2) as $t => $file) {
+        display_block($file);
+    }
+
+    echo "</div>";
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,29 +198,29 @@ if (!$title) {
             -webkit-box-sizing: border-box;
             box-sizing: border-box;
         }
+        html {
+            font-size: 100%;
+        }
         body {
             font-family: "Lato", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
             font-weight: 400;
-            font-size: 1.8em;
+            font-size: 1.8rem;
             line-height: 1em;
             padding: 0;
             margin: 0;
             background: #f5f5f5;
         }
-        .wrap {
-            margin: 60px 80px;
-            background: white;
-            box-shadow: 0 0 2px #ccc;
-        }
-        .title-icon {
-            max-width: 200px;
-            margin: 20px auto 10px auto;
-            display: block;
-        }
         h1 {
             text-align: center;
-            margin: 5px 0 40px 0;
-            font-size: 2em;
+            margin: 5px 0 60px 0;
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #6C51C3;
+        }
+        h2 {
+            text-align: center;
+            margin: 50px 0 25px 0;
+            font-size: 1.6em;
             font-weight: bold;
             color: #6C51C3;
         }
@@ -93,10 +232,23 @@ if (!$title) {
             color: #206ba4;
             text-decoration: none;
         }
+        .title-icon {
+            max-width: 200px;
+            margin: 20px auto 10px auto;
+            display: block;
+        }
+        .wrap{
+            margin: 20px 80px;
+            background: white;
+            box-shadow: 0 0 2px #ccc;
+        }
         .block {
             clear: both;
             min-height: 70px;
             border-top: solid 1px #ECE9E9;
+
+            /*FontBoosting bugfix : https://bugs.webkit.org/show_bug.cgi?id=FontBoosting */
+            max-height: 1000000px;
         }
         .block:first-child {
             border: none;
@@ -153,152 +305,26 @@ if (!$title) {
     </style>
 </head>
 <body>
-<img src="https://dl.dropbox.com/s/zzfvk7377fdpdcn/meetch_icone-transp.png" class="title-icon">
-<h1><?php echo $title ?></h1>
-<div class="wrap">
-<?php
-
-// FUNCTIONS TO MAKE THE MAGIC HAPPEN, BEST TO LEAVE THESE ALONE
-function cleanTitle($title) {
-    return ucwords(str_replace(array("-", "_"), " ", $title));
-}
-
-function getFileExt($filename) {
-    return substr(strrchr($filename, '.'), 1);
-}
-
-function format_size($file) {
-    $bytes = filesize($file);
-
-    if ($bytes < 1024) {
-        return $bytes.'b';
-    } elseif ($bytes < 1048576) {
-        return round($bytes / 1024, 2).'kb';
-    } elseif ($bytes < 1073741824) {
-        return round($bytes / 1048576, 2).'mb';
-    } elseif ($bytes < 1099511627776) {
-        return round($bytes / 1073741824, 2).'gb';
-    } else {
-        return round($bytes / 1099511627776, 2).'tb';
-    }
-}
-
-
-// SHOW THE MEDIA BLOCK
-function display_block($file) {
-    global $ignore_file_list, $ignore_ext_list;
-
-    $file_ext = getFileExt($file);
-    if (!$file_ext && is_dir($file)) {
-        $file_ext = "dir";
-    }
-
-    $file_name = basename($file);
-    $file_size = format_size($file);
-    $file_date = date("D. F jS, Y - H\hi", filemtime($file));
-
-    echo <<<EOT
-<div class="block">
-    <a href="./{$file}" class="{$file_ext}">
-        <div class="img {$file_ext}">&nbsp;</div>
-        <div class="name">
-            <div class="file"> {$file_name} </div>
-            <div class="date">Size: {$file_size} <br>
-            Last modified: {$file_date}</div>
-        </div>
-    </a>
-</div>
-EOT;
-}
-
-
-// RECURSIVE FUNCTION TO BUILD THE BLOCKS
-function build_blocks($items, $folder) {
-    global $ignore_file_list, $ignore_ext_list, $sort_by, $toggle_sub_folders;
-
-    $objects = array();
-    $objects['directories'] = array();
-    $objects['files'] = array();
-
-    foreach ($items as $c => $item) {
-        if ($item == ".." || $item == ".") {
-            continue;
-        }
-
-        if ($folder) {
-            $item = "$folder/$item";
-        }
-
-        $file_ext = getFileExt($item);
-
-        // IGNORE EXT
-        if ($file_ext != "apk") {
-            continue;
-        }
-
-        // DIRECTORIES
-        if (is_dir($item)) {
-            $objects['directories'][] = $item;
-            continue;
-        }
-
-        // FILE DATE
-        $file_time = date("U", filemtime($item));
-
-        // FILES
-        $objects['files'][$file_time . "-" . $item] = $item;
-    }
-
-    foreach ($objects['directories'] as $c => $file) {
-        display_block( $file );
+    <img src="https://dl.dropbox.com/s/zzfvk7377fdpdcn/meetch_icone-transp.png" class="title-icon">
+    <h1><?php echo $title ?></h1>
+    <?php
+        // GET THE BLOCKS STARTED, FALSE TO INDICATE MAIN FOLDER
+        $items = scandir(dirname(__FILE__));
+        build_blocks($items, false);
 
         if ($toggle_sub_folders) {
-            $sub_items = (array) scandir( $file );
-            if ($sub_items) {
-                echo "<div class='sub' data-folder=\"$file\">";
-                build_blocks( $sub_items, $file );
-                echo "</div>";
-            }
-        }
-    }
-
-    // SORT BEFORE LOOP
-    if ($sort_by == "date_asc") {
-        ksort($objects['files']);
-    }
-    elseif ($sort_by == "date_desc") {
-        krsort($objects['files']);
-    }
-    elseif ($sort_by == "name_asc") {
-        natsort($objects['files']);
-    }
-    elseif ($sort_by == "name_desc") {
-        arsort($objects['files']);
-    }
-
-    foreach ($objects['files'] as $t => $file) {
-        $fileExt = getFileExt($file);
-
-        display_block($file);
-    }
-}
-
-// GET THE BLOCKS STARTED, FALSE TO INDICATE MAIN FOLDER
-$items = scandir(dirname(__FILE__));
-build_blocks( $items, false );
-?>
-
-<?php if ($toggle_sub_folders) { ?>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('a.dir').on('click', function (e) {
-            e.preventDefault();
-            $('.sub[data-folder="' + $(this).attr('href') + '"]').slideToggle();
+    ?>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('a.dir').on('click', function (e) {
+                e.preventDefault();
+                $('.sub[data-folder="' + $(this).attr('href') + '"]').slideToggle();
+            });
         });
-    });
-</script>
-<?php } ?>
-</div>
+    </script>
+    <?php
+        }
+    ?>
 </body>
 </html>
