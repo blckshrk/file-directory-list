@@ -31,12 +31,6 @@ SOFTWARE.
 // TITLE OF PAGE
 $title = "Meetchr nightly builds";
 
-// ADD SPECIFIC FILES YOU WANT TO IGNORE HERE
-$ignore_file_list = array( ".htaccess", "Thumbs.db", ".DS_Store", "index.php" );
-
-// ADD SPECIFIC FILE EXTENSIONS YOU WANT TO IGNORE HERE, EXAMPLE: array('psd','jpg','jpeg')
-$ignore_ext_list = array();
-
 // SORT BY
 $sort_by = "name_desc"; // options: name_asc, name_desc, date_asc, date_desc
 
@@ -198,12 +192,6 @@ function display_block($file) {
     if (!$file_ext && is_dir($file)) {
         $file_ext = "dir";
     }
-    if (in_array($file, $ignore_file_list)) {
-        return;
-    }
-    if (in_array($file_ext, $ignore_ext_list)) {
-        return;
-    }
 
     $file_name = basename($file);
     $file_size = format_size($file);
@@ -237,11 +225,6 @@ function build_blocks($items, $folder) {
             continue;
         }
 
-        // IGNORE FILE
-        if (in_array($item, $ignore_file_list)) {
-            continue;
-        }
-
         if ($folder) {
             $item = "$folder/$item";
         }
@@ -249,7 +232,7 @@ function build_blocks($items, $folder) {
         $file_ext = getFileExt($item);
 
         // IGNORE EXT
-        if (in_array($file_ext, $ignore_ext_list)) {
+        if ($file_ext != "apk") {
             continue;
         }
 
@@ -295,14 +278,6 @@ function build_blocks($items, $folder) {
 
     foreach ($objects['files'] as $t => $file) {
         $fileExt = getFileExt($file);
-
-        if (in_array($file, $ignore_file_list)) {
-            continue;
-        }
-
-        if (in_array($fileExt, $ignore_ext_list)) {
-            continue;
-        }
 
         display_block($file);
     }
