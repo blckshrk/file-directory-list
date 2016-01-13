@@ -150,10 +150,10 @@ function build_blocks($items, $folder) {
     }
 
     // LASTEST APK
-    echo "<h2>Lastest</h2>";
+    echo "<h2>Latest</h2>";
     echo "<div class=\"wrap\">";
 
-    foreach (array_slice($objects['files'], 0, 2) as $t => $file) {
+    foreach (array_slice($objects['files'], 0, 1) as $t => $file) {
         display_block($file);
     }
 
